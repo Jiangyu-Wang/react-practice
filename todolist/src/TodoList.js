@@ -1,5 +1,6 @@
 import React, { Component, Fragment } from 'react';
-import TodoItem from './TodoItem'
+import TodoItem from './TodoItem';
+import axios from 'axios';
 import './style.css';
 
 class TodoList extends Component {
@@ -21,10 +22,11 @@ class TodoList extends Component {
         <div>
           <label htmlFor="insertArea">输入内容</label>
           <input 
-            id="insertArea"
-            className='input'
+            id="insertArea" 
+            className='input' 
             value={this.state.inputValue} 
-            onChange={this.handleInputChange}
+            onChange={this.handleInputChange} 
+            ref={(input) => {this.input = input}} 
           />
           <button onClick={this.handleBtnClick}>提交</button>
         </div>
@@ -33,21 +35,31 @@ class TodoList extends Component {
     )
   }
 
+  componentDidMount() {
+    axios.get('/api/todolist')
+      .then((res)=>{
+        this.setState(() => ({
+            list: [...res.data]            
+        }));
+      })
+      .catch(()=>{alert('error')})
+  }
+
   getTodoItem() {
     return this.state.list.map((item, index) => {
       return (
         <TodoItem 
-          key={index}
+          key={item}
           content={item} 
           index={index} 
-          handleItemDelete={this.handleItemDelete} 
+          deleItem={this.handleItemDelete} 
         />
       )
     });
   }
 
   handleInputChange(e) {
-    const { value } = e.target;
+    const value = this.input.value;
     this.setState(() => ({
       inputValue: value
     }));
